@@ -198,28 +198,10 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 		err=json.Unmarshal(claimAsBytes, &objClaim)
 	}else{
 		fmt.Println("2222222222222222-->")
-		resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
-		return resp, errors.New("The is no such claim exist-->%s" + claimId)
-	}
-
-	if(err!=nil){
-			fmt.Println("3333333333333333-->")
-			return nil, errors.New("Error While unmarshalling the ObjectClaim of claimid->" + claimId)
-	}else{
-		fmt.Println("44444444444444-->")
-			if objClaim.ClaimId == claimId {
-				fmt.Println("5555555555555555555-->")
-				fmt.Println("This claim arleady exists: " + claimId)
-				fmt.Println(objClaim);
-				return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
-			}
-
-
-	}
-	
-	fmt.Println("66666666666666")
-	
-	//Now we have to build the Claim structure
+		//resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
+		//return resp, errors.New("The is no such claim exist-->%s" + claimId)
+		//*********
+		//Now we have to build the Claim structure
 	//before that lets build other sub-structures required for Claim struct
 	
 	claimDate := args[1]
@@ -295,6 +277,27 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	err = stub.PutState(claimantIndexMap_Key, jsonAsBytes)	
 
 	fmt.Println("- end create_claim")
+		//********
+	}
+
+	if(err!=nil){
+			fmt.Println("3333333333333333-->")
+			return nil, errors.New("Error While unmarshalling the ObjectClaim of claimid->" + claimId)
+	}else{
+		fmt.Println("44444444444444-->")
+			if objClaim.ClaimId == claimId {
+				fmt.Println("5555555555555555555-->")
+				fmt.Println("This claim arleady exists: " + claimId)
+				fmt.Println(objClaim);
+				return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
+			}
+
+
+	}
+	
+	fmt.Println("66666666666666")
+	
+	
 	return nil, nil
 }
 
