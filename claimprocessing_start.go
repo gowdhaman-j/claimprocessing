@@ -281,15 +281,16 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	}
 
 	if(err!=nil){
-			fmt.Println("3333333333333333-->")
-			return nil, errors.New("Error While unmarshalling the ObjectClaim of claimid->" + claimId)
+			fmt.Println("3333333333333333-->" ,err)
+			return []byte("Error While unmarshalling the ObjectClaim of claimid"+claimId), errors.New("Error While unmarshalling the ObjectClaim of claimid->" + claimId)
 	}else{
 		fmt.Println("44444444444444-->")
 			if objClaim.ClaimId == claimId {
 				fmt.Println("5555555555555555555-->")
 				fmt.Println("This claim arleady exists: " + claimId)
 				fmt.Println(objClaim);
-				return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
+				return []byte("claim arleady exists-->"+claimId), errors.New("claim arleady exists->" + claimId)
+				//return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
 			}
 
 
