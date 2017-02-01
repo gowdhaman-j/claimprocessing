@@ -205,7 +205,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 				return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
 			}
 		}else{
-			fmt.Println("4444444444444444444-->")
+			fmt.Println("4444444444444444444-->" +tempstr)
+			return nil , err
 		}
 	}
 	
