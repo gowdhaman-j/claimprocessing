@@ -203,7 +203,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 		}
 	}
 	
-	
+	fmt.Println("11111111111111111111")
 	
 	//Now we have to build the Claim structure
 	//before that lets build other sub-structures required for Claim struct
