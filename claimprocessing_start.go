@@ -123,7 +123,8 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 	if function == "init" {													//initialize the chaincode state, used as reset
 		return t.Init(stub, "init", args)
 	} else if function == "create_claim" {									//create a new claim
-		return t.create_claim(stub, args)
+		res,err := t.create_claim(stub, args)
+		return res,err
 	} else if function == "update_claimStatus" {										// update the claim status
 		return t.update_claimStatus(stub, args)
 	}
