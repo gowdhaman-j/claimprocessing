@@ -233,6 +233,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	//Build Claim structure
 	strClaim := `{"claimid": "}` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": "` + strClaimantDetailsType + `", "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": "` + strClaimStateType + `", "actordetails": "` + strActorType + `"}`
 	
+	return []byte(strClaim), nil
+
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
 	if err != nil {
 		return nil, err
