@@ -76,7 +76,7 @@ func main() {
 		fmt.Printf("Error starting ClaimProcessing chaincode: %s", err)
 
 	}
-}
+} 
 
 
 // ============================================================================================================================
@@ -116,7 +116,7 @@ func (t *ClaimProcessing) Init(stub shim.ChaincodeStubInterface, function string
 // Run - Our entry point
 // ============================================================================================================================
 func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	fmt.Println("Entry to Invoke " + function)
+	fmt.Printf("Entry to Invoke " + function)
 
 	// Handle different functions
 	if function == "init" {													//initialize the chaincode state, used as reset
@@ -128,7 +128,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 	}
 
 
-	fmt.Println("run did not find func: " + function)						//error
+	fmt.Printf("run did not find func: " + function)						//error
 
 	return nil, errors.New("Received unknown function invocation")
 }
@@ -139,7 +139,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	//0			1			2 					3			4			5					6				7				8			9			10			11			12
 	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription
 
-	fmt.Println("- start crete_claim")
+	fmt.Printf("- start crete_claim")
 
 	//Do Input Sanitation
 	if len(args[0]) <= 0 {
@@ -194,8 +194,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 		objClaim := Claim{}
 		json.Unmarshal(claimAsBytes, &objClaim)
 		//if objClaim.ClaimId == claimId{
-		//	fmt.Println("This claim arleady exists: " + claimId)
-		//	fmt.Println(objClaim);
+		//	fmt.Printf("This claim arleady exists: " + claimId)
+		//	fmt.Printf(objClaim);
 			return nil, errors.New("This claim arleady exists")				//all stop a claim by this id exists
 		//}
 	}
@@ -233,7 +233,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	//Build Claim structure
 	strClaim := `{"claimid": "}` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": "` + strClaimantDetailsType + `", "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": "` + strClaimStateType + `", "actordetails": "` + strActorType + `"}`
 	
-	return []byte(strClaim), nil
+	
 
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
 	if err != nil {
@@ -279,18 +279,18 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	jsonAsBytes, _ := json.Marshal(claimantIndexOfTypeMap)
 	err = stub.PutState(claimantIndexMap_Key, jsonAsBytes)	
 
-	fmt.Println("- end create_claim")
+	fmt.Printf("- end create_claim")
 	return nil, nil
 }
 
 func (t *ClaimProcessing) update_claimStatus(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	//var err error
-	fmt.Println("- start update_claimStatus")
+	fmt.Printf("- start update_claimStatus")
 
 
 
 
-	fmt.Println("- end update_claimStatus")
+	fmt.Printf("- end update_claimStatus")
 	return nil, nil
 }
 
@@ -298,7 +298,7 @@ func (t *ClaimProcessing) update_claimStatus(stub shim.ChaincodeStubInterface, a
 // Query - Our entry point for Queries
 // ============================================================================================================================
 func (t *ClaimProcessing) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	fmt.Println("query is running " + function)
+	fmt.Printf("query is running " + function)
 
 	// Handle different functions
 	if function == "getClaim" {													//read a variable
@@ -306,7 +306,7 @@ func (t *ClaimProcessing) Query(stub shim.ChaincodeStubInterface, function strin
 	}else if function == "getClaimByClaimant" {													//read a variable
 		return t.getClaimByClaimant(stub, args)
 	}
-	fmt.Println("query did not find func: " + function)						//error
+	fmt.Printf("query did not find func: " + function)						//error
 
 	return nil, errors.New("Received unknown function query")
 }  
