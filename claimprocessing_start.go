@@ -124,6 +124,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Init(stub, "init", args)
 	} else if function == "create_claim" {									//create a new claim
 		res,err := t.create_claim(stub, args)
+		fmt.Println("In Invoke" + string(res))
 		return res,err
 	} else if function == "update_claimStatus" {										// update the claim status
 		return t.update_claimStatus(stub, args)
