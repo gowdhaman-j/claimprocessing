@@ -185,7 +185,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 	//check if the claim id already exists..
 	claimId := args[0]
-	
+	var err error
+	/*
 	claimAsBytes, err := stub.GetState(claimId)
 	if err != nil {
 		//return nil, errors.New("Failed to get claim id")
@@ -199,7 +200,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 		//}
 	}
 	
-	
+	*/
 	
 	//Now we have to build the Claim structure
 	//before that lets build other sub-structures required for Claim struct
