@@ -192,7 +192,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 	if(claimAsBytes!=nil){
 		tempstr:= string(claimAsBytes)
-		strings.Replace(tempstr,`'`,`"`,-1)
+		fmt.Println("tempstr--------->" + tempstr)
+		strings.Replace(tempstr,"'","\"",-1)
 		fmt.Println("tempstr--------->" + tempstr)
 		fmt.Println("11111111111111111111-->")
 		
