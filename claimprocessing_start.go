@@ -124,8 +124,8 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Init(stub, "init", args)
 	} else if function == "create_claim" {									//create a new claim
 		res,err := t.create_claim(stub, args)
-		fmt.Println("In Invoke" + string(res))
-		return res,err
+		fmt.Println("In Invoke------>" + string(res))
+		return []byte("omg1"),err
 	} else if function == "update_claimStatus" {										// update the claim status
 		return t.update_claimStatus(stub, args)
 	}
@@ -133,7 +133,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 
 	fmt.Println("run did not find func: " + function)						//error
 
-	return nil, errors.New("Received unknown function invocation")
+	return []byte("omg"), errors.New("Received unknown function invocation")
 }
 
 func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
