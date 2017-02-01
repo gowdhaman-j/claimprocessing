@@ -187,21 +187,23 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	//check if the claim id already exists..
 	claimId := args[0]
 	
-	/*
+	
 	claimAsBytes, err := stub.GetState(claimId)
 	if err != nil {
 		//return nil, errors.New("Failed to get claim id")
 	}else{
 		objClaim := Claim{}
-		json.Unmarshal(claimAsBytes, &objClaim)
-		//if objClaim.ClaimId == claimId{
-		//	fmt.Println("This claim arleady exists: " + claimId)
-		//	fmt.Println(objClaim);
-			return nil, errors.New("This claim arleady exists")				//all stop a claim by this id exists
-		//}
+		err=json.Unmarshal(claimAsBytes, &objClaim)
+		if(err==nil){
+			if objClaim.ClaimId == claimId {
+				fmt.Println("This claim arleady exists: " + claimId)
+				fmt.Println(objClaim);
+				return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
+			}
+		}
 	}
 	
-	*/
+	
 	
 	//Now we have to build the Claim structure
 	//before that lets build other sub-structures required for Claim struct
