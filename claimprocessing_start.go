@@ -21,7 +21,7 @@ import (
 	"fmt"
     "strconv"
 	"encoding/json"
-	 "strings"
+	
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -193,8 +193,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	if(claimAsBytes!=nil){
 		tempstr:= string(claimAsBytes)
 		fmt.Println("tempstr--------->" + tempstr)
-		strings.Replace(tempstr,"'","\"",-1)
-		fmt.Println("tempstr--------->" + tempstr)
+
 		fmt.Println("11111111111111111111-->")
 		
 		err=json.Unmarshal(claimAsBytes, &objClaim)
@@ -227,12 +226,12 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	//objClaimantDetailsType.ClaimantId = claimantId
 	//objClaimantDetailsType.ClaimantName = claimantname
 	
-	strClaimStateType := `{'claimstatus': '` + claimStatus + `', 'claimstatuschanged': '` + claimStatusChanged + `'}`
+	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
 	
-	strActorType :=  `{'actorempid': '` + actorEmpId + `', 'actorname': '` + actorName + `', 'actorrole': '` + actorRole + `', 'actiondescription': '` + actionDesc + `'}`
+	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
 
 	//Build Claim structure
-	strClaim := `{'claimid': '` + claimId + `', 'claimdate': '` + claimDate + `', 'claimdescription': '` + claimDesc + `', 'claimantdetails': '` + strClaimantDetailsType + `', 'claimedamount': '` + claimedAmount + `', 'approvedamount': '` + approvedAmount + `', 'claimstate': '` + strClaimStateType + `', 'actordetails': '` + strActorType + `'}`
+	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": "` + strClaimantDetailsType + `", "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": "` + strClaimStateType + `", "actordetails": "` + strActorType + `"}`
 	
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
 	if err != nil {
