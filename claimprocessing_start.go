@@ -21,7 +21,7 @@ import (
 	"fmt"
     "strconv"
 	"encoding/json"
-		
+	 "strings"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -192,6 +192,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 	if(claimAsBytes!=nil){
 		tempstr:= string(claimAsBytes)
+		strings.Replace(tempstr,`'`,`"`,-1)
 		fmt.Println("tempstr--------->" + tempstr)
 		fmt.Println("11111111111111111111-->")
 		
@@ -282,7 +283,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 	if(err!=nil){
 			fmt.Println("3333333333333333-->" ,err)
-			return []byte("Error While unmarshalling the ObjectClaim of claimid"+claimId), errors.New("Error While unmarshalling the ObjectClaim of claimid->" + claimId)
+			return []byte("Error While unmarshalling the ObjectClaim of claimid"+claimId), nil
 	}else{
 		fmt.Println("44444444444444-->")
 			if objClaim.ClaimId == claimId {
