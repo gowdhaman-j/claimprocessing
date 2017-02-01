@@ -290,7 +290,7 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 				fmt.Println("5555555555555555555-->")
 				fmt.Println("This claim arleady exists: " + claimId)
 				fmt.Println(objClaim);
-				return []byte("Claim Already exist"), nil
+				return claimAsBytes, nil
 				//return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
 			}
 
