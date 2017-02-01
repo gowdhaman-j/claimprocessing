@@ -198,8 +198,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 		err=json.Unmarshal(claimAsBytes, &objClaim)
 	}else{
 		fmt.Println("2222222222222222-->")
-		resp := []byte("The is no such claim exist-->" + claimId) 
-		return resp, errors.New("The is no such claim exist-->" + claimId)
+		resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
+		return resp, errors.New("The is no such claim exist-->%s" + claimId)
 	}
 
 	if(err!=nil){
