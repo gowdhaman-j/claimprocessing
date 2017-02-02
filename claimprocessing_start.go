@@ -131,7 +131,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 			fmt.Println("******* Before Creation, Check for duplication by calling the getClaim method *******")	
 			res,err= t.Query(stub ,"getClaim",args)
 				if(err!=nil){// Expecting an error saying Claim does not exist
-					fmt.Println("******* Claim DOES NOT Exist... HEnce Going for Create Claim *******")	
+					  fmt.Println("******* Claim DOES NOT Exist... HEnce Going for Create Claim ******* " ,err)
 					// Let us create the claim
 					return t.create_Claim(stub, args)
 				}else if(res!=nil){//Claim exist, hence I'm updating
@@ -476,15 +476,28 @@ func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []
 // Query - Our entry point for Queries
 // ============================================================================================================================
 func (t *ClaimProcessing) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	fmt.Println("query is running " + function)
-
+	fmt.Println("Entering Query method " + function)
+	res := []byte("")
+	err := errors.New("")
 	// Handle different functions
-	if function == "getClaim" {													//read a variable
-		return t.getClaim(stub, args)
-	}else if function == "getClaimByClaimant" {													//read a variable
-		return t.getClaimByClaimant(stub, args)
+	if function == "getClaim" {													
+		res,err= t.getClaim(stub, args)
+		if(res!=nil){
+			//Claim Exist
+			return res,nil
+		}else if(err!=nil){
+			return nil,err
+		}
+	}else if function == "getClaimByClaimant" {													
+		res,err= t.getClaimByClaimant(stub, args)
+		if(res!=nil){
+			//Claim does not Exist
+			return res,nil
+		}else if(err!=nil){
+			return nil,err
+		}
 	}
-	fmt.Println("query did not find func: " + function)						//error
+	fmt.Println("query did not find func: " + function)						
 
 	return nil, errors.New("Received unknown function query")
 }  
