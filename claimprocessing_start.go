@@ -120,7 +120,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 	fmt.Println("Entry to Invoke " + function)
 	res := []byte("") 
 	err := errors.New("")
-	
+	tempargs :=args
 	
 	// Handle different functions
 	if function == "init" {													//initialize the chaincode state, used as reset
@@ -129,7 +129,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 		fmt.Println("******* Identied the function as create_claim *******")							//create a new claim
 			// Let us check whether the claim exist before create
 			fmt.Println("******* Before Creation, Check for duplication by calling the getClaim method *******")	
-			res,err= t.Query(stub ,"getClaim",args)
+			res,err= t.Query(stub ,"getClaim",tempargs)
 				if(err!=nil){// Expecting an error saying Claim does not exist
 					  fmt.Println("******* Claim DOES NOT Exist... HEnce Going for Create Claim ******* " ,err)
 					// Let us create the claim
@@ -507,7 +507,7 @@ func (t *ClaimProcessing) getClaim(stub shim.ChaincodeStubInterface, args []stri
 	var err error
 
 	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
+		return nil, errors.New("Incorrect number of arguments. Expecting Claimid in the argument to query")
 	}
 
 	claimId = args[0]
