@@ -369,29 +369,10 @@ func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []
 	if len(args[12]) <= 0 {
 		return nil, errors.New("13th argument must be a non-empty string")
 	}
-	//Input sanitation ends
 
-	//check if the claim id already exists..
 	claimId := args[0]
-	//objClaim := Claim{}
-	/*
-	claimAsBytes, err := stub.GetState(claimId)
 
-	if(claimAsBytes!=nil){
-		tempstr:= string(claimAsBytes)
-		fmt.Println("tempstr--------->" + tempstr)
-
-		fmt.Println("11111111111111111111-->")
-		
-		err=json.Unmarshal(claimAsBytes, &objClaim)
-	}
-	*/
-		fmt.Println("2222222222222222-->")
-		//resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
-		//return resp, errors.New("The is no such claim exist-->%s" + claimId)
-		//*********
-		//Now we have to build the Claim structure
-	//before that lets build other sub-structures required for Claim struct
+	fmt.Println("2222222222222222-->")
 	
 	claimDate := args[1] 
 	claimDesc := args[2]
@@ -410,9 +391,7 @@ func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []
 	// Build 3 sub-structures inside Claim structure
 	strClaimantDetailsType := `{"claimantid": "` + claimantId + `", "claimantname": "` + claimantName + `"}`
 	
-	//objClaimantDetailsType := ClaimantDetailsType{}
-	//objClaimantDetailsType.ClaimantId = claimantId
-	//objClaimantDetailsType.ClaimantName = claimantname
+
 	
 	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
 	
@@ -424,50 +403,10 @@ func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
 	if (err != nil) {
 		//Error while creating the claim
-		fmt.Println("Error while creating the claim-->" ,err)
+		fmt.Println("Error while updating the claim-->" ,err)
 		return nil, err
 	}
 	
-	//Get the claimantIndexMap_Key
-	claimantAsBytes, err := stub.GetState(claimantIndexMap_Key)
-	if err != nil {
-		return nil, errors.New("Failed to get claimant index map")
-	}
-	claimantIndexOfTypeMap := make(map[string]ClaimantIndex)
-	json.Unmarshal(claimantAsBytes, &claimantIndexOfTypeMap)
-	
-	// Get a value for a key with `name[key]`.
-	v1,boolvar := claimantIndexOfTypeMap[claimantId]	
-	if(boolvar != true){
-		//Not able to find claimantId, hence create a new key-value pair
-		// Build the ClaimantIndex structure
-		
-		arrayofClaimIds := []string{claimId}
-		objClaimantIndex := ClaimantIndex{}
-		objClaimantIndex.ClaimantId=claimantId
-		objClaimantIndex.ClaimIds=arrayofClaimIds
-		
-		claimantIndexOfTypeMap[claimantId] = objClaimantIndex
-	}else{
-		//able to find the key with claimantId
-		arrayofClaimIds := v1.ClaimIds
-		arrayofClaimIds = append(arrayofClaimIds, claimId)
-		
-		
-		objClaimantIndex := ClaimantIndex{}
-		objClaimantIndex.ClaimantId=claimantId
-		objClaimantIndex.ClaimIds=arrayofClaimIds
-		
-		delete(claimantIndexOfTypeMap, claimantId)
-		
-		claimantIndexOfTypeMap[claimantId] = objClaimantIndex
-		
-	}
-	
-	jsonAsBytes, _ := json.Marshal(claimantIndexOfTypeMap)
-	err = stub.PutState(claimantIndexMap_Key, jsonAsBytes)	
-
-
 	fmt.Println("- end update_claimStatus")
 	return nil, nil
 }
@@ -502,10 +441,10 @@ func (t *ClaimProcessing) Query(stub shim.ChaincodeStubInterface, function strin
 	return nil, errors.New("Received unknown function query")
 }  
 
-func (t *ClaimProcessing) getClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *ClaimProcessing) getClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {  
 	var claimId, jsonResp string
 	var err error
-fmt.Println("Entering GetClaim method")	
+ fmt.Println("Entering GetClaim method")	
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting Claimid in the argument to query")
 	}
