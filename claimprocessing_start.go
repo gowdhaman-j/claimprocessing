@@ -120,7 +120,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 	fmt.Println("Entry to Invoke " + function)
 	res := []byte("") 
 	err := errors.New("")
-	tempargs :=args
+	tempargs:= []string{args[0]}
 	
 	// Handle different functions
 	if function == "init" {													//initialize the chaincode state, used as reset
@@ -505,7 +505,7 @@ func (t *ClaimProcessing) Query(stub shim.ChaincodeStubInterface, function strin
 func (t *ClaimProcessing) getClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var claimId, jsonResp string
 	var err error
-
+fmt.Println("Entering GetClaim method")	
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting Claimid in the argument to query")
 	}
@@ -516,7 +516,7 @@ func (t *ClaimProcessing) getClaim(stub shim.ChaincodeStubInterface, args []stri
 		jsonResp = "{\"Error\":\"Failed to get state for " + claimId + "\"}"
 		return nil, errors.New(jsonResp)
 	}
-		
+	fmt.Println("Exitng GetClaim method")	
 	return valAsbytes, nil
 	
 	
