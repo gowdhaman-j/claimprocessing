@@ -131,15 +131,27 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 			fmt.Println("******* Before Creation, Check for duplication by calling the getClaim method *******")	
 			res,err= t.Query(stub ,"getClaim",tempargs)
 				if(err!=nil){// Expecting an error saying Claim does not exist
-					  fmt.Println("******* Claim DOES NOT Exist... HEnce Going for Create Claim ******* " ,err)
+					  fmt.Println("******* Claim DOES NOT Exist... Hence Going for Create Claim ******* " ,err)
 					// Let us create the claim
 					return t.create_Claim(stub, args)
 				}else if(res!=nil){//Claim exist, hence I'm updating
-				fmt.Println("******* Claim EXIST ... HEnce Going for update Claim *******")	
+				fmt.Println("******* Claim EXIST ... Hence Going for update Claim *******")	
 					return t.update_Claim(stub, args)
 				}
 	} else if function == "update_Claim" {										// update the claim 
-		return t.update_Claim(stub, args)
+				
+		fmt.Println("******* Identied the function as update_claim *******")							//create a new claim
+			// Let us check whether the claim exist before create
+			fmt.Println("******* Before Update, Check for for existance of the claim *******")	
+			res,err= t.Query(stub ,"getClaim",tempargs)
+				if(err!=nil){// Expecting an error saying Claim does not exist
+					  fmt.Println("******* Claim DOES NOT Exist... Hence Going for Create Claim ******* " ,err)
+					// Let us create the claim
+					return t.create_Claim(stub, args)
+				}else if(res!=nil){//Claim exist, hence I'm updating
+				fmt.Println("******* Claim EXIST ... Hence Going for update Claim *******")	
+					return t.update_Claim(stub, args)
+				}
 	}
 
 
