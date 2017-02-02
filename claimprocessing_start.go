@@ -489,6 +489,9 @@ func (t *ClaimProcessing) getClaimByClaimant(stub shim.ChaincodeStubInterface, a
 	var jsonResp string
 	var err error
 	var jsonAsBytes []byte
+	var claimVar Claim
+	var claimArray []Claim
+	var arrayofClaimIds []string
 	
 	
 	if len(args) != 1 {
@@ -512,7 +515,17 @@ func (t *ClaimProcessing) getClaimByClaimant(stub shim.ChaincodeStubInterface, a
 	if(boolvar != true){
 		return nil, errors.New("This claimantId does not exist")
 	}else{
-		jsonAsBytes, _ = json.Marshal(v1)
+		arrayofClaimIds = v1.ClaimIds
+		for i := range arrayofClaimIds{
+			stringVar := arrayofClaimIds[i]
+			claimAsBytes, err := stub.GetState(stringVar)
+			if(err==nil){
+				json.Unmarshal(claimAsBytes, &claimVar)
+				claimArray = append(claimArray, claimVar)
+			}
+			
+		}	
+		jsonAsBytes, _ = json.Marshal(claimArray)
 		
 	}	
 	return jsonAsBytes, nil 
