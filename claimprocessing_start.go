@@ -118,16 +118,28 @@ func (t *ClaimProcessing) Init(stub shim.ChaincodeStubInterface, function string
 // ============================================================================================================================
 func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("Entry to Invoke " + function)
-	res := []byte("howdy") 
+	res := []byte("") 
+	err := errors.New("")
+	
+	
 	// Handle different functions
 	if function == "init" {													//initialize the chaincode state, used as reset
 		return t.Init(stub, "init", args)
-	} else if function == "create_claim" {									//create a new claim
-		res,err := t.create_claim(stub, args)
-		fmt.Println("In Invoke------>" + string(res))
-		return res,err
-	} else if function == "update_claimStatus" {										// update the claim status
-		return t.update_claimStatus(stub, args)
+	} else if function == "create_Claim" {		
+		fmt.Println("******* Identied the function as create_claim *******")							//create a new claim
+			// Let us check whether the claim exist before create
+			fmt.Println("******* Before Creation, Check for duplication by calling the getClaim method *******")	
+			res,err= t.Query(stub ,"getClaim",args)
+				if(err!=nil){// Expecting an error saying Claim does not exist
+					fmt.Println("******* Claim DOES NOT Exist... HEnce Going for Create Claim *******")	
+					// Let us create the claim
+					return t.create_Claim(stub, args)
+				}else if(res!=nil){//Claim exist, hence I'm updating
+				fmt.Println("******* Claim EXIST ... HEnce Going for update Claim *******")	
+					return t.update_Claim(stub, args)
+				}
+	} else if function == "update_Claim" {										// update the claim 
+		return t.update_Claim(stub, args)
 	}
 
 
@@ -136,7 +148,7 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return res, errors.New("Received unknown function invocation")
 }
 
-func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *ClaimProcessing) create_Claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 	//args
 	//0			1			2 					3			4			5					6				7				8			9			10			11			12
@@ -188,8 +200,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 	//check if the claim id already exists..
 	claimId := args[0]
-	objClaim := Claim{}
-	
+	//objClaim := Claim{}
+	/*
 	claimAsBytes, err := stub.GetState(claimId)
 
 	if(claimAsBytes!=nil){
@@ -199,7 +211,8 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 		fmt.Println("11111111111111111111-->")
 		
 		err=json.Unmarshal(claimAsBytes, &objClaim)
-	}else{
+	}
+	*/
 		fmt.Println("2222222222222222-->")
 		//resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
 		//return resp, errors.New("The is no such claim exist-->%s" + claimId)
@@ -236,7 +249,9 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `}`
 	
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
-	if err != nil {
+	if (err != nil) {
+		//Error while creating the claim
+		fmt.Println("Error while creating the claim-->" ,err)
 		return nil, err
 	}
 	
@@ -281,8 +296,9 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 	fmt.Println("- end create_claim")
 		//********
-	}
+	
 
+/*
 	if(err!=nil){
 			fmt.Println("3333333333333333-->" ,err)
 			return []byte("Error While unmarshalling the ObjectClaim of claimid"+claimId), nil
@@ -298,18 +314,158 @@ func (t *ClaimProcessing) create_claim(stub shim.ChaincodeStubInterface, args []
 
 
 	}
-	
+*/	
 	fmt.Println("66666666666666")
 	
 	
 	return nil, nil
 }
 
-func (t *ClaimProcessing) update_claimStatus(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	//var err error
-	fmt.Println("- start update_claimStatus")
+func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+	//args
+	//0			1			2 					3			4			5					6				7				8			9			10			11			12
+	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription
 
+	fmt.Println("- start create_claim")
 
+	//Do Input Sanitation
+	if len(args[0]) <= 0 {
+		return nil, errors.New("1st argument must be a non-empty string")
+	}
+	if len(args[1]) <= 0 {
+		return nil, errors.New("2nd argument must be a non-empty string")
+	}
+	if len(args[2]) <= 0 {
+		return nil, errors.New("3rd argument must be a non-empty string")
+	}
+	if len(args[3]) <= 0 {
+		return nil, errors.New("4th argument must be a non-empty string")
+	}
+	if len(args[4]) <= 0 {
+		return nil, errors.New("5th argument must be a non-empty string")
+	}
+	if len(args[5]) <= 0 {
+		return nil, errors.New("6th argument must be a non-empty string")
+	}
+	if len(args[6]) <= 0 {
+		return nil, errors.New("7th argument must be a non-empty string")
+	}
+	if len(args[7]) <= 0 {
+		return nil, errors.New("8th argument must be a non-empty string")
+	}
+	if len(args[8]) <= 0 {
+		return nil, errors.New("9th argument must be a non-empty string")
+	}
+	if len(args[9]) <= 0 {
+		return nil, errors.New("10th argument must be a non-empty string")
+	}
+	if len(args[10]) <= 0 {
+		return nil, errors.New("11th argument must be a non-empty string")
+	}
+	if len(args[11]) <= 0 {
+		return nil, errors.New("12th argument must be a non-empty string")
+	}
+	if len(args[12]) <= 0 {
+		return nil, errors.New("13th argument must be a non-empty string")
+	}
+	//Input sanitation ends
+
+	//check if the claim id already exists..
+	claimId := args[0]
+	//objClaim := Claim{}
+	/*
+	claimAsBytes, err := stub.GetState(claimId)
+
+	if(claimAsBytes!=nil){
+		tempstr:= string(claimAsBytes)
+		fmt.Println("tempstr--------->" + tempstr)
+
+		fmt.Println("11111111111111111111-->")
+		
+		err=json.Unmarshal(claimAsBytes, &objClaim)
+	}
+	*/
+		fmt.Println("2222222222222222-->")
+		//resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
+		//return resp, errors.New("The is no such claim exist-->%s" + claimId)
+		//*********
+		//Now we have to build the Claim structure
+	//before that lets build other sub-structures required for Claim struct
+	
+	claimDate := args[1] 
+	claimDesc := args[2]
+	claimantId := args[3]
+	claimantName := args[4]
+	claimedAmount := args[5]
+	approvedAmount := args [6]
+	claimStatus := args[7]
+	claimStatusChanged := args[8]
+	actorEmpId := args[9]
+	actorName := args[10]
+	actorRole := args[11]
+	actionDesc := args[12]
+	
+	
+	// Build 3 sub-structures inside Claim structure
+	strClaimantDetailsType := `{"claimantid": "` + claimantId + `", "claimantname": "` + claimantName + `"}`
+	
+	//objClaimantDetailsType := ClaimantDetailsType{}
+	//objClaimantDetailsType.ClaimantId = claimantId
+	//objClaimantDetailsType.ClaimantName = claimantname
+	
+	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
+	
+	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
+
+	//Build Claim structure
+	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `}`
+	
+	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
+	if (err != nil) {
+		//Error while creating the claim
+		fmt.Println("Error while creating the claim-->" ,err)
+		return nil, err
+	}
+	
+	//Get the claimantIndexMap_Key
+	claimantAsBytes, err := stub.GetState(claimantIndexMap_Key)
+	if err != nil {
+		return nil, errors.New("Failed to get claimant index map")
+	}
+	claimantIndexOfTypeMap := make(map[string]ClaimantIndex)
+	json.Unmarshal(claimantAsBytes, &claimantIndexOfTypeMap)
+	
+	// Get a value for a key with `name[key]`.
+	v1,boolvar := claimantIndexOfTypeMap[claimantId]	
+	if(boolvar != true){
+		//Not able to find claimantId, hence create a new key-value pair
+		// Build the ClaimantIndex structure
+		
+		arrayofClaimIds := []string{claimId}
+		objClaimantIndex := ClaimantIndex{}
+		objClaimantIndex.ClaimantId=claimantId
+		objClaimantIndex.ClaimIds=arrayofClaimIds
+		
+		claimantIndexOfTypeMap[claimantId] = objClaimantIndex
+	}else{
+		//able to find the key with claimantId
+		arrayofClaimIds := v1.ClaimIds
+		arrayofClaimIds = append(arrayofClaimIds, claimId)
+		
+		
+		objClaimantIndex := ClaimantIndex{}
+		objClaimantIndex.ClaimantId=claimantId
+		objClaimantIndex.ClaimIds=arrayofClaimIds
+		
+		delete(claimantIndexOfTypeMap, claimantId)
+		
+		claimantIndexOfTypeMap[claimantId] = objClaimantIndex
+		
+	}
+	
+	jsonAsBytes, _ := json.Marshal(claimantIndexOfTypeMap)
+	err = stub.PutState(claimantIndexMap_Key, jsonAsBytes)	
 
 
 	fmt.Println("- end update_claimStatus")
