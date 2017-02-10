@@ -39,6 +39,14 @@ type ClaimantIndex struct{
 
 
 //Defining the required Structure for the PoC
+
+type StateHistory struct{
+	ClaimStatus string `json:"claimstatus"`
+	ClaimStatusChanged string `json:"claimstatuschanged"`
+	ActorName string `json:"actorname"`
+	ActionDescription string `json:"actiondescription"`
+}
+
 type ClaimantDetailsType struct{
 	ClaimantId string `json:"claimantid"`	
 	ClaimantName string `json:"claimantname"`
@@ -66,6 +74,7 @@ type Claim struct{
 	ApprovedAmount string `json:"approvedamount"`
     ClaimState ClaimStateType `json:"claimstate"`
     ActorDetails ActorType `json:"actordetails"`
+	StatesHistory []StateHistory `json:"stateshistory"`
 }
 
 // ============================================================================================================================
@@ -256,9 +265,11 @@ func (t *ClaimProcessing) create_Claim(stub shim.ChaincodeStubInterface, args []
 	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
 	
 	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
+	
+	strStateHistoryType := `[{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `", "actorname": "` + actorName + `", "actiondescription": "` + actionDesc + `"}]`
 
 	//Build Claim structure
-	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `}`
+	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `, "stateshistory": `+ strStateHistoryType +`}`
 	
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
 	if (err != nil) {
@@ -335,11 +346,15 @@ func (t *ClaimProcessing) create_Claim(stub shim.ChaincodeStubInterface, args []
 
 func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
+	var varClaim Claim
+	var varStateHistory StateHistory
+	var varStatesHistory []StateHistory
+
 	//args
 	//0			1			2 					3			4			5					6				7				8			9			10			11			12
 	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription
 
-	fmt.Println("- start create_claim")
+	fmt.Println("- start update_Claim")
 
 	//Do Input Sanitation
 	if len(args[0]) <= 0 {
@@ -408,9 +423,35 @@ func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []
 	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
 	
 	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
-
+	
+	strStateHistoryType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `", "actorname": "` + actorName + `", "actiondescription": "` + actionDesc + `"}`
+	err = json.Unmarshal([]byte(strStateHistoryType), &varStateHistory) // Convert the value to be appeneded to JSON
 	//Build Claim structure
-	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `}`
+	fmt.Println("Current varStateHistory.ClaimStatus----->" + varStateHistory.ClaimStatus)
+	
+	
+	valAsbytes, err := stub.GetState(claimId)		
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + claimId + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+	
+	
+	json.Unmarshal(valAsbytes, &varClaim)
+	varStatesHistory = varClaim.StatesHistory	//get the current value of StatesHistory array and then append
+	
+	fmt.Println("varStatesHistory[0].ClaimStatus-------->"+varStatesHistory[0].ClaimStatus)
+	
+	varStatesHistory = append(varStatesHistory, varStateHistory) // append the current state to array
+	
+	fmt.Println("varStatesHistory[0].ClaimStatus-------->"+varStatesHistory[0].ClaimStatus)
+	fmt.Println("varStatesHistory[1].ClaimStatus-------->"+varStatesHistory[1].ClaimStatus)
+	
+	strStatesHistory, _ := json.Marshal(varStatesHistory);
+	
+	
+	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `, "stateshistory": `+ string(strStatesHistory) +`}`
+		
 	
 	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
 	if (err != nil) {
