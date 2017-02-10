@@ -123,7 +123,7 @@ func (t *ClaimProcessing) Init(stub shim.ChaincodeStubInterface, function string
 }
 
 // ============================================================================================================================
-// Run - Our entry point
+// Invoke - Our entry point for Invoke 
 // ============================================================================================================================
 func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("Entry to Invoke " + function)
