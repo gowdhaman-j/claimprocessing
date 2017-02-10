@@ -10,8 +10,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
 limitations under the License.
+See the License for the specific language governing permissions and
 */
 
 package main
@@ -171,107 +171,32 @@ func (t *ClaimProcessing) Invoke(stub shim.ChaincodeStubInterface, function stri
 
 func (t *ClaimProcessing) create_Claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
-	//args
-	//0			1			2 					3			4			5					6				7				8			9			10			11			12
-	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription
+	inputValidationResp := []byte("")
+
+	objClaimAsByes := []byte("")
+	
+	//   0		1		        2 	            3		     4		       5			6				7			      8				   9		10	      11			12                  13 (Status History) 14           15             16
+	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ,ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription, ClaimStatus,  ClaimStatusChanged, Actorname, ActionDescription
 
 	fmt.Println("- start create_claim")
 
-	//Do Input Sanitation
-	if len(args[0]) <= 0 {
-		return nil, errors.New("1st argument must be a non-empty string")
+	//Validate the Input
+	inputValidationResp,err= t.validteInputs(stub, args) 
+	if(err!=nil || inputValidationResp==nil){
+		return nil, err
 	}
-	if len(args[1]) <= 0 {
-		return nil, errors.New("2nd argument must be a non-empty string")
-	}
-	if len(args[2]) <= 0 {
-		return nil, errors.New("3rd argument must be a non-empty string")
-	}
-	if len(args[3]) <= 0 {
-		return nil, errors.New("4th argument must be a non-empty string")
-	}
-	if len(args[4]) <= 0 {
-		return nil, errors.New("5th argument must be a non-empty string")
-	}
-	if len(args[5]) <= 0 {
-		return nil, errors.New("6th argument must be a non-empty string")
-	}
-	if len(args[6]) <= 0 {
-		return nil, errors.New("7th argument must be a non-empty string")
-	}
-	if len(args[7]) <= 0 {
-		return nil, errors.New("8th argument must be a non-empty string")
-	}
-	if len(args[8]) <= 0 {
-		return nil, errors.New("9th argument must be a non-empty string")
-	}
-	if len(args[9]) <= 0 {
-		return nil, errors.New("10th argument must be a non-empty string")
-	}
-	if len(args[10]) <= 0 {
-		return nil, errors.New("11th argument must be a non-empty string")
-	}
-	if len(args[11]) <= 0 {
-		return nil, errors.New("12th argument must be a non-empty string")
-	}
-	if len(args[12]) <= 0 {
-		return nil, errors.New("13th argument must be a non-empty string")
-	}
-	//Input sanitation ends
 
-	//check if the claim id already exists..
-	claimId := args[0]
-	//objClaim := Claim{}
-	/*
-	claimAsBytes, err := stub.GetState(claimId)
-
-	if(claimAsBytes!=nil){
-		tempstr:= string(claimAsBytes)
-		fmt.Println("tempstr--------->" + tempstr)
-
-		fmt.Println("11111111111111111111-->")
-		
-		err=json.Unmarshal(claimAsBytes, &objClaim)
-	}
-	*/
-		fmt.Println("2222222222222222-->")
-		//resp := []byte(`"The is no such claim exist-->` + claimId+`"`) 
-		//return resp, errors.New("The is no such claim exist-->%s" + claimId)
-		//*********
-		//Now we have to build the Claim structure
-	//before that lets build other sub-structures required for Claim struct
-	
-	claimDate := args[1]
-	claimDesc := args[2]
+    claimId := args[0] 
 	claimantId := args[3]
-	claimantName := args[4]
-	claimedAmount := args[5]
-	approvedAmount := args [6]
-	claimStatus := args[7]
-	claimStatusChanged := args[8]
-	actorEmpId := args[9]
-	actorName := args[10]
-	actorRole := args[11]
-	actionDesc := args[12]
-	
-	
-	// Build 3 sub-structures inside Claim structure
-	strClaimantDetailsType := `{"claimantid": "` + claimantId + `", "claimantname": "` + claimantName + `"}`
-	
-	//objClaimantDetailsType := ClaimantDetailsType{}
-	//objClaimantDetailsType.ClaimantId = claimantId
-	//objClaimantDetailsType.ClaimantName = claimantname
-	
-	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
-	
-	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
-	
-	strStateHistoryType := `[{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `", "actorname": "` + actorName + `", "actiondescription": "` + actionDesc + `"}]`
 
-	//Build Claim structure
-	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `, "stateshistory": `+ strStateHistoryType +`}`
+	// build the ClaimObj
+	objClaimAsByes,err= t.buildClaimObj(stub, args) 
+	if(err!=nil || objClaimAsByes==nil){
+			return nil, errors.New("Error While building the ClaimObject")
+	}
 	
-	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
+	//store claim with id as key
+	err = stub.PutState(claimId, objClaimAsByes)									
 	if (err != nil) {
 		//Error while creating the claim
 		fmt.Println("Error while creating the claim-->" ,err)
@@ -318,142 +243,38 @@ func (t *ClaimProcessing) create_Claim(stub shim.ChaincodeStubInterface, args []
 	err = stub.PutState(claimantIndexMap_Key, jsonAsBytes)	
 
 	fmt.Println("- end create_claim")
-		//********
-	
-
-/*
-	if(err!=nil){
-			fmt.Println("3333333333333333-->" ,err)
-			return []byte("Error While unmarshalling the ObjectClaim of claimid"+claimId), nil
-	}else{
-		fmt.Println("44444444444444-->")
-			if objClaim.ClaimId == claimId {
-				fmt.Println("5555555555555555555-->")
-				fmt.Println("This claim arleady exists: " + claimId)
-				fmt.Println(objClaim);
-				return claimAsBytes, nil
-				//return nil, errors.New(claimId + "claim arleady exists")				//all stop a claim by this id exists
-			}
-
-
-	}
-*/	
-	fmt.Println("66666666666666")
-	
+		
 	
 	return nil, nil
 }
 
 func (t *ClaimProcessing) update_Claim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
-	var varClaim Claim
-	var varStateHistory StateHistory
-	var varStatesHistory []StateHistory
+	objClaimAsByes := []byte("")
+	inputValidationResp := []byte("")
+	
 
-	//args
-	//0			1			2 					3			4			5					6				7				8			9			10			11			12
-	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription
+	//   0		1		        2 	            3		     4		       5			6				7			      8				   9		10	      11			12                  13 (Status History) 14           15             16
+	//ClaimId, ClaimDate, ClaimDescription, ClaimantId, ClaimantName, ClaimedAmount, ApprovedAmount ,ClaimStatus, ClaimStatusChanged, ActorEmpId, ActorName, ActorRole, ActionDescription, ClaimStatus,  ClaimStatusChanged, Actorname, ActionDescription
 
 	fmt.Println("- start update_Claim")
 
-	//Do Input Sanitation
-	if len(args[0]) <= 0 {
-		return nil, errors.New("1st argument must be a non-empty string")
-	}
-	if len(args[1]) <= 0 {
-		return nil, errors.New("2nd argument must be a non-empty string")
-	}
-	if len(args[2]) <= 0 {
-		return nil, errors.New("3rd argument must be a non-empty string")
-	}
-	if len(args[3]) <= 0 {
-		return nil, errors.New("4th argument must be a non-empty string")
-	}
-	if len(args[4]) <= 0 {
-		return nil, errors.New("5th argument must be a non-empty string")
-	}
-	if len(args[5]) <= 0 {
-		return nil, errors.New("6th argument must be a non-empty string")
-	}
-	if len(args[6]) <= 0 {
-		return nil, errors.New("7th argument must be a non-empty string")
-	}
-	if len(args[7]) <= 0 {
-		return nil, errors.New("8th argument must be a non-empty string")
-	}
-	if len(args[8]) <= 0 {
-		return nil, errors.New("9th argument must be a non-empty string")
-	}
-	if len(args[9]) <= 0 {
-		return nil, errors.New("10th argument must be a non-empty string")
-	}
-	if len(args[10]) <= 0 {
-		return nil, errors.New("11th argument must be a non-empty string")
-	}
-	if len(args[11]) <= 0 {
-		return nil, errors.New("12th argument must be a non-empty string")
-	}
-	if len(args[12]) <= 0 {
-		return nil, errors.New("13th argument must be a non-empty string")
+	//Validate the Input
+	inputValidationResp,err= t.validteInputs(stub, args) 
+	if(err!=nil || inputValidationResp==nil){
+		return nil, err
 	}
 
-	claimId := args[0]
-
-	fmt.Println("2222222222222222-->")
+    claimId := args[0] 
 	
-	claimDate := args[1] 
-	claimDesc := args[2]
-	claimantId := args[3]
-	claimantName := args[4]
-	claimedAmount := args[5]
-	approvedAmount := args [6]
-	claimStatus := args[7]
-	claimStatusChanged := args[8]
-	actorEmpId := args[9]
-	actorName := args[10]
-	actorRole := args[11]
-	actionDesc := args[12]
-	
-	
-	// Build 3 sub-structures inside Claim structure
-	strClaimantDetailsType := `{"claimantid": "` + claimantId + `", "claimantname": "` + claimantName + `"}`
-	
-
-	
-	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
-	
-	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
-	
-	strStateHistoryType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `", "actorname": "` + actorName + `", "actiondescription": "` + actionDesc + `"}`
-	err = json.Unmarshal([]byte(strStateHistoryType), &varStateHistory) // Convert the value to be appeneded to JSON
-	//Build Claim structure
-	fmt.Println("Current varStateHistory.ClaimStatus----->" + varStateHistory.ClaimStatus)
-	
-	
-	valAsbytes, err := stub.GetState(claimId)		
-	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + claimId + "\"}"
-		return nil, errors.New(jsonResp)
+	// build the ClaimObj
+	objClaimAsByes,err= t.buildClaimObj(stub, args) 
+	if(err!=nil || objClaimAsByes==nil){
+			return nil, errors.New("Error While building the ClaimObject")
 	}
-	
-	
-	json.Unmarshal(valAsbytes, &varClaim)
-	varStatesHistory = varClaim.StatesHistory	//get the current value of StatesHistory array and then append
-	
-	fmt.Println("varStatesHistory[0].ClaimStatus-------->"+varStatesHistory[0].ClaimStatus)
-	
-	varStatesHistory = append(varStatesHistory, varStateHistory) // append the current state to array
-	
-	fmt.Println("varStatesHistory[0].ClaimStatus-------->"+varStatesHistory[0].ClaimStatus)
-	fmt.Println("varStatesHistory[1].ClaimStatus-------->"+varStatesHistory[1].ClaimStatus)
-	
-	strStatesHistory, _ := json.Marshal(varStatesHistory);
-	
-	
-	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `, "stateshistory": `+ string(strStatesHistory) +`}`
-		
-	
-	err = stub.PutState(claimId, []byte(strClaim))									//store claim with id as key
+
+	//store claim with id as key
+	err = stub.PutState(claimId, objClaimAsByes)									
 	if (err != nil) {
 		//Error while creating the claim
 		fmt.Println("Error while updating the claim-->" ,err)
@@ -511,27 +332,123 @@ func (t *ClaimProcessing) getClaim(stub shim.ChaincodeStubInterface, args []stri
 	fmt.Println("Exitng GetClaim method")	
 	return valAsbytes, nil
 	
-	
-	/*
-	strClaimantDetailsType := `{"claimantid": "}` + objClaim.ClaimantDetails.ClaimantId + `", "claimantname": ",` +  objClaim.ClaimantDetails.ClaimantName + `"}`
-	
-	
-	strClaimStateType := `{"claimantstatus": "}` + objClaim.ClaimState.ClaimStatus + `", "claimstatuschanged": "` + objClaim.ClaimState.ClaimStatusChanged + `"}`
-	
-	strActorType :=  `{"actorempid": "}` + objClaim.ActorDetails.ActorEmpId + `", "actorname": "` + objClaim.ActorDetails.ActorName + `", "actorrole": "` + objClaim.ActorDetails.ActorRole + `", "actiondescription": "` + objClaim.ActorDetails.ActionDescription + `"}`
-	
-	jsonResp = `{"claimid": "}` + objClaim.ClaimId + `", "claimdate": "` + objClaim.ClaimDate + `", "claimdescription": "` + objClaim.ClaimDescription + `", "claimantdetails": "` + strClaimantDetailsType + `", "claimedamount": "` + objClaim.ClaimedAmount + `", "approvedamount": "` + objClaim.ApprovedAmount + `", "claimstate": "` + strClaimStateType + `", "actordetails": "` + strActorType + `"}`
 
-	return []byte(jsonResp), nil													//send it onward
-	*/
+}
+
+func (t *ClaimProcessing) validteInputs(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	//Do Input Sanitation
+	if len(args[0]) <= 0 {
+		return nil, errors.New("1st argument must be a non-empty string")
+	}
+	if len(args[1]) <= 0 {
+		return nil, errors.New("2nd argument must be a non-empty string")
+	}
+	if len(args[2]) <= 0 {
+		return nil, errors.New("3rd argument must be a non-empty string")
+	}
+	if len(args[3]) <= 0 {
+		return nil, errors.New("4th argument must be a non-empty string")
+	}
+	if len(args[4]) <= 0 {
+		return nil, errors.New("5th argument must be a non-empty string")
+	}
+	if len(args[5]) <= 0 {
+		return nil, errors.New("6th argument must be a non-empty string")
+	}
+	if len(args[6]) <= 0 {
+		return nil, errors.New("7th argument must be a non-empty string")
+	}
+	if len(args[7]) <= 0 {
+		return nil, errors.New("8th argument must be a non-empty string")
+	}
+	if len(args[8]) <= 0 {
+		return nil, errors.New("9th argument must be a non-empty string")
+	}
+	if len(args[9]) <= 0 {
+		return nil, errors.New("10th argument must be a non-empty string")
+	}
+	if len(args[10]) <= 0 {
+		return nil, errors.New("11th argument must be a non-empty string")
+	}
+	if len(args[11]) <= 0 {
+		return nil, errors.New("12th argument must be a non-empty string")
+	}
+	if len(args[12]) <= 0 {
+		return nil, errors.New("13th argument must be a non-empty string")
+	}
+	return []byte("Valid Input"),nil
+}
+
+func (t *ClaimProcessing) buildClaimObj(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	
+	var err error
+	var objClaim Claim
+	var objStateHistory StateHistory
+	var arrayOfStatesHistory []StateHistory
+	
+
+
+	claimId := args[0]
+
+	fmt.Println("2222222222222222-->")
+	
+	claimDate := args[1] 
+	claimDesc := args[2]
+	claimantId := args[3]
+	claimantName := args[4]
+	claimedAmount := args[5]
+	approvedAmount := args [6]
+	claimStatus := args[7]
+	claimStatusChanged := args[8]
+	actorEmpId := args[9]
+	actorName := args[10]
+	actorRole := args[11]
+	actionDesc := args[12]
+	
+	
+	// Build 3 sub-structures inside Claim structure
+	strClaimantDetailsType := `{"claimantid": "` + claimantId + `", "claimantname": "` + claimantName + `"}`
+	
+
+	
+	strClaimStateType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `"}`
+	
+	strActorType :=  `{"actorempid": "` + actorEmpId + `", "actorname": "` + actorName + `", "actorrole": "` + actorRole + `", "actiondescription": "` + actionDesc + `"}`
+	
+	strStateHistoryType := `{"claimstatus": "` + claimStatus + `", "claimstatuschanged": "` + claimStatusChanged + `", "actorname": "` + actorName + `", "actiondescription": "` + actionDesc + `"}`
+	err = json.Unmarshal([]byte(strStateHistoryType), &objStateHistory) // Convert the value to be appeneded to JSON
+	//Build Claim structure
+	fmt.Println("Current varStateHistory.ClaimStatus----->" + objStateHistory.ClaimStatus)
+	
+	
+	valAsbytes, err := stub.GetState(claimId)		
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + claimId + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+	
+	
+	json.Unmarshal(valAsbytes, &objClaim)
+	arrayOfStatesHistory = objClaim.StatesHistory	//get the current value of StatesHistory array and then append
+	arrayOfStatesHistory = append(arrayOfStatesHistory, objStateHistory) // append the current state to array
+	
+	
+	strStatesHistory, _ := json.Marshal(arrayOfStatesHistory);
+	
+	
+	strClaim := `{"claimid": "` + claimId + `", "claimdate": "` + claimDate + `", "claimdescription": "` + claimDesc + `", "claimantdetails": ` + strClaimantDetailsType + `, "claimedamount": "` + claimedAmount + `", "approvedamount": "` + approvedAmount + `", "claimstate": ` + strClaimStateType + `, "actordetails": ` + strActorType + `, "stateshistory": `+ string(strStatesHistory) +`}`
+
+	
+
+	return []byte(strClaim),nil
 }
 
 func (t *ClaimProcessing) getClaimByClaimant(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var jsonResp string
 	var err error
 	var jsonAsBytes []byte
-	var claimVar Claim
-	var claimArray []Claim
+	var objClaim Claim
+	var arrayOfClaims []Claim
 	var arrayofClaimIds []string
 	
 	
@@ -552,21 +469,21 @@ func (t *ClaimProcessing) getClaimByClaimant(stub shim.ChaincodeStubInterface, a
 	json.Unmarshal(claimantAsBytes, &claimantIndexOfTypeMap)
 	
 	// Get a value for a key with `name[key]`.
-	v1,boolvar := claimantIndexOfTypeMap[claimantId]
+	objClaimantIndex,boolvar := claimantIndexOfTypeMap[claimantId]
 	if(boolvar != true){
 		return nil, errors.New("This claimantId does not exist")
 	}else{
-		arrayofClaimIds = v1.ClaimIds
+		arrayofClaimIds = objClaimantIndex.ClaimIds
 		for i := range arrayofClaimIds{
-			stringVar := arrayofClaimIds[i]
-			claimAsBytes, err := stub.GetState(stringVar)
+			strClaimId := arrayofClaimIds[i]
+			claimAsBytes, err := stub.GetState(strClaimId)
 			if(err==nil){
-				json.Unmarshal(claimAsBytes, &claimVar)
-				claimArray = append(claimArray, claimVar)
+				json.Unmarshal(claimAsBytes, &objClaim)
+				arrayOfClaims = append(arrayOfClaims, objClaim)
 			}
 			
 		}	
-		jsonAsBytes, _ = json.Marshal(claimArray)
+		jsonAsBytes, _ = json.Marshal(arrayOfClaims)
 		
 	}	
 	return jsonAsBytes, nil 
